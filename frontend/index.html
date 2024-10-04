@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vertical Calendar App</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
     <div id="app">
@@ -15,12 +16,13 @@
             <button id="next-month">&gt;</button>
         </div>
         <div id="calendar"></div>
-        <div id="event-form">
+        <div id="event-form" style="display: none;">
             <h2>Add Event</h2>
             <input type="text" id="event-title" placeholder="Event Title" required>
             <input type="date" id="event-date" required>
             <textarea id="event-description" placeholder="Event Description"></textarea>
             <button id="add-event">Add Event</button>
+            <button id="cancel-event">Cancel</button>
         </div>
     </div>
     <script type="module" src="index.js"></script>
