@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Calendar App</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div id="app">
+        <h1>Vertical Calendar</h1>
+        <div id="calendar-controls">
+            <button id="prev-month">&lt;</button>
+            <span id="current-month"></span>
+            <button id="next-month">&gt;</button>
+        </div>
+        <div id="calendar"></div>
+        <div id="event-form">
+            <h2>Add Event</h2>
+            <input type="text" id="event-title" placeholder="Event Title" required>
+            <input type="date" id="event-date" required>
+            <textarea id="event-description" placeholder="Event Description"></textarea>
+            <button id="add-event">Add Event</button>
+        </div>
+    </div>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
