@@ -1,7 +1,7 @@
 import { backend } from 'declarations/backend';
 
 document.addEventListener('DOMContentLoaded', () => {
-    ensureLucideLoaded();
+    initializeLucide();
     updateTime();
     setInterval(updateTime, 60000);
     updateCalendar();
@@ -9,22 +9,34 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFamilyMembers();
 });
 
-function ensureLucideLoaded() {
-    if (typeof lucide === 'undefined') {
-        console.warn('Lucide is not loaded. Attempting to load it dynamically.');
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js';
-        script.onload = () => {
-            console.log('Lucide loaded successfully.');
-            lucide.createIcons();
-        };
-        script.onerror = () => {
-            console.error('Failed to load Lucide. Icons may not display correctly.');
-        };
-        document.head.appendChild(script);
-    } else {
+function initializeLucide() {
+    if (typeof lucide !== 'undefined') {
         lucide.createIcons();
+    } else {
+        console.error('Lucide is not loaded. Using fallback icons.');
+        useFallbackIcons();
     }
+}
+
+function useFallbackIcons() {
+    const iconElements = document.querySelectorAll('[data-lucide]');
+    iconElements.forEach(element => {
+        const iconName = element.getAttribute('data-lucide');
+        element.textContent = getFallbackIcon(iconName);
+    });
+}
+
+function getFallbackIcon(iconName) {
+    const fallbackIcons = {
+        'plus': '+',
+        'settings': '⚙',
+        'calendar': '📅',
+        'user': '👤',
+        'check-square': '☑',
+        'chevron-left': '<',
+        'chevron-right': '>'
+    };
+    return fallbackIcons[iconName] || '?';
 }
 
 function updateTime() {
@@ -99,19 +111,50 @@ function setupEventListeners() {
     const nextButton = document.querySelector('.nav-button:last-child');
     const addButton = document.querySelector('.add-button');
     const settingsIcon = document.querySelector('.settings-icon');
-    const modal = document.getElementById('settingsModal');
-    const closeButton = document.querySelector('.close');
+    const settingsModal = document.getElementById('settingsModal');
+    const addEventModal = document.getElementById('addEventModal');
+    const closeButtons = document.querySelectorAll('.close');
+    const addEventForm = document.getElementById('addEventForm');
 
     prevButton.addEventListener('click', () => navigateWeek(-1));
     nextButton.addEventListener('click', () => navigateWeek(1));
-    addButton.addEventListener('click', showAddEventForm);
-    settingsIcon.addEventListener('click', () => modal.style.display = 'block');
-    closeButton.addEventListener('click', () => modal.style.display = 'none');
+    addButton.addEventListener('click', () => addEventModal.style.display = 'block');
+    settingsIcon.addEventListener('click', () => settingsModal.style.display = 'block');
+    
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+            addEventModal.style.display = 'none';
+        });
+    });
+
     window.addEventListener('click', (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
+        if (event.target == settingsModal) {
+            settingsModal.style.display = 'none';
+        }
+        if (event.target == addEventModal) {
+            addEventModal.style.display = 'none';
         }
     });
+
+    addEventForm.addEventListener('submit', handleAddEvent);
+}
+
+async function handleAddEvent(event) {
+    event.preventDefault();
+    const title = document.getElementById('eventTitle').value;
+    const date = new Date(document.getElementById('eventDate').value);
+    const description = document.getElementById('eventDescription').value;
+
+    try {
+        await backend.addEvent(title, BigInt(date.getTime() * 1000000), description);
+        alert('Event added successfully!');
+        document.getElementById('addEventModal').style.display = 'none';
+        updateCalendar();
+    } catch (error) {
+        console.error('Error adding event:', error);
+        alert('Failed to add event. Please try again.');
+    }
 }
 
 async function loadFamilyMembers() {
@@ -192,11 +235,6 @@ function navigateWeek(direction) {
     const currentStart = new Date(startDate + ', ' + new Date().getFullYear());
     currentStart.setDate(currentStart.getDate() + direction * 7);
     updateCalendar(currentStart);
-}
-
-function showAddEventForm() {
-    // Implement the logic to show the add event form
-    console.log('Add event form should be shown');
 }
 
 // Make updateFamilyMember function global so it can be called from HTML
