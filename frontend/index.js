@@ -1,17 +1,31 @@
 import { backend } from 'declarations/backend';
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    } else {
-        console.error('Lucide is not loaded. Icons may not display correctly.');
-    }
+    ensureLucideLoaded();
     updateTime();
     setInterval(updateTime, 60000);
     updateCalendar();
     setupEventListeners();
     loadFamilyMembers();
 });
+
+function ensureLucideLoaded() {
+    if (typeof lucide === 'undefined') {
+        console.warn('Lucide is not loaded. Attempting to load it dynamically.');
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js';
+        script.onload = () => {
+            console.log('Lucide loaded successfully.');
+            lucide.createIcons();
+        };
+        script.onerror = () => {
+            console.error('Failed to load Lucide. Icons may not display correctly.');
+        };
+        document.head.appendChild(script);
+    } else {
+        lucide.createIcons();
+    }
+}
 
 function updateTime() {
     const now = new Date();
