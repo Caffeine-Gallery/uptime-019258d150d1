@@ -2,21 +2,11 @@ type FamilyMember =
  record {
    id: nat;
    name: text;
+   photoUrl: text;
    todoCount: nat;
  };
-type Event = 
- record {
-   date: int;
-   description: text;
-   id: nat;
-   title: text;
- };
 service : {
-  addEvent: (text, int, text) -> (nat);
-  addFamilyMember: (text) -> (nat);
-  deleteEvent: (nat) -> (bool);
-  getEvents: (int, int) -> (vec Event) query;
   getFamilyMembers: () -> (vec FamilyMember) query;
-  updateEvent: (nat, text, int, text) -> (bool);
+  updateFamilyMember: (nat, text, text) -> (bool);
   updateFamilyMemberTodoCount: (nat, nat) -> (bool);
 }
