@@ -6,16 +6,370 @@
     <title>Family Calendar</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js" defer></script>
     <style>
-        /* ... (previous styles remain unchanged) ... */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 1.5rem;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .weather {
+            display: flex;
+            align-items: center;
+        }
+        .temperature {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+        .high-low {
+            font-size: 0.875rem;
+        }
+        .time {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .date-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f9fafb;
+        }
+        .date-range {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .nav-button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 9999px;
+            transition: background-color 0.2s;
+        }
+        .nav-button:hover {
+            background-color: #e5e7eb;
+        }
+        .family-members {
+            display: flex;
+            justify-content: space-between;
+            padding: 1.5rem;
+        }
+        .family-member {
+            text-align: center;
+        }
+        .avatar {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 9999px;
+            margin-bottom: 0.5rem;
+        }
+        .member-name {
+            font-weight: 600;
+        }
+        .todos {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+        }
+        .day-label {
+            text-align: center;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        .day-column {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            height: 24rem;
+            overflow-y: auto;
+        }
+        .day-number {
+            text-align: right;
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+        .event {
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .event-name {
+            font-weight: 600;
+        }
+        .event-time {
+            opacity: 0.75;
+        }
+        .add-button {
+            position: fixed;
+            bottom: 5rem;
+            right: 1rem;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+        .add-button:hover {
+            transform: scale(1.05);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem 0;
+            border-top: 1px solid #e5e7eb;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-item.active {
+            color: #3b82f6;
+        }
+        .nav-item:hover {
+            color: #3b82f6;
+        }
+        .nav-label {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .settings-icon {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            color: #3b82f6;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .family-member-settings {
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- ... (previous content remains unchanged) ... -->
+        <div class="header">
+            <div class="header-content">
+                <div class="weather">
+                    <i data-lucide="sun"></i>
+                    <div class="temperature">48°</div>
+                    <div class="high-low">High: 72° Low: 64°</div>
+                </div>
+                <div class="time">7:58pm</div>
+            </div>
+        </div>
+        <div class="date-nav">
+            <div class="date-range">
+                <i data-lucide="calendar"></i>
+                May 14-20, 2023
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-button"><i data-lucide="chevron-left"></i></button>
+                <button class="nav-button"><i data-lucide="chevron-right"></i></button>
+            </div>
+        </div>
+        <div class="family-members">
+            <div class="family-member">
+                <img src="/api/placeholder/80/80" alt="Mom" class="avatar">
+                <div class="member-name">Mom</div>
+                <div class="todos">5 to-dos</div>
+            </div>
+            <div class="family-member">
+                <img src="/api/placeholder/80/80" alt="Dad" class="avatar">
+                <div class="member-name">Dad</div>
+                <div class="todos">3 to-dos</div>
+            </div>
+            <div class="family-member">
+                <img src="/api/placeholder/80/80" alt="Noah" class="avatar">
+                <div class="member-name">Noah</div>
+                <div class="todos">4 to-dos</div>
+            </div>
+            <div class="family-member">
+                <img src="/api/placeholder/80/80" alt="Avery" class="avatar">
+                <div class="member-name">Avery</div>
+                <div class="todos">5 to-dos</div>
+            </div>
+        </div>
+        <div class="calendar-grid">
+            <div class="day-label">Sun</div>
+            <div class="day-label">Mon</div>
+            <div class="day-label">Tue</div>
+            <div class="day-label">Wed</div>
+            <div class="day-label">Thu</div>
+            <div class="day-label">Fri</div>
+            <div class="day-label">Sat</div>
+            
+            <div class="day-column">
+                <div class="day-number">14</div>
+            </div>
+            <div class="day-column">
+                <div class="day-number">15</div>
+                <div class="event" style="background-color: #bfdbfe;">
+                    <div class="event-name">Chores</div>
+                    <div class="event-time">9-10am</div>
+                </div>
+                <div class="event" style="background-color: #f9a8d4;">
+                    <div class="event-name">Yoga</div>
+                    <div class="event-time">9-10am</div>
+                </div>
+                <div class="event" style="background-color: #f9a8d4;">
+                    <div class="event-name">Work calls</div>
+                    <div class="event-time">10-11am</div>
+                </div>
+                <div class="event" style="background-color: #fcd34d;">
+                    <div class="event-name">Tutoring</div>
+                    <div class="event-time">12-1pm</div>
+                </div>
+                <div class="event" style="background-color: #14b8a6;">
+                    <div class="event-name">Family Movie Time</div>
+                    <div class="event-time">5-6:30pm</div>
+                </div>
+            </div>
+            <div class="day-column">
+                <div class="day-number">16</div>
+                <div class="event" style="background-color: #f9a8d4;">
+                    <div class="event-name">Sam's Birthday</div>
+                    <div class="event-time">All-day</div>
+                </div>
+                <div class="event" style="background-color: #f9a8d4;">
+                    <div class="event-name">Camp sign-up</div>
+                    <div class="event-time">All-day</div>
+                </div>
+                <div class="event" style="background-color: #86efac;">
+                    <div class="event-name">Science Fair</div>
+                    <div class="event-time">All-day</div>
+                </div>
+                <div class="event" style="background-color: #14b8a6;">
+                    <div class="event-name">Dentist</div>
+                    <div class="event-time">11am</div>
+                </div>
+            </div>
+            <div class="day-column">
+                <div class="day-number">17</div>
+                <div class="event" style="background-color: #f9a8d4;">
+                    <div class="event-name">Yoga</div>
+                    <div class="event-time">9-10am</div>
+                </div>
+                <div class="event" style="background-color: #f9a8d4;">
+                    <div class="event-name">Doctor</div>
+                    <div class="event-time">1-2pm</div>
+                </div>
+                <div class="event" style="background-color: #86efac;">
+                    <div class="event-name">Soccer practice</div>
+                    <div class="event-time">2:30-4pm</div>
+                </div>
+            </div>
+            <div class="day-column">
+                <div class="day-number">18</div>
+                <div class="event" style="background-color: #c084fc;">
+                    <div class="event-name">Field trip!</div>
+                    <div class="event-time">All-day</div>
+                </div>
+            </div>
+            <div class="day-column">
+                <div class="day-number">19</div>
+                <div class="event" style="background-color: #fdba74;">
+                    <div class="event-name">Internet Installation</div>
+                    <div class="event-time">11am-12pm</div>
+                </div>
+            </div>
+            <div class="day-column">
+                <div class="day-number">20</div>
+            </div>
+        </div>
     </div>
     <button class="add-button"><i data-lucide="plus"></i></button>
     <nav class="bottom-nav">
-        <!-- ... (previous content remains unchanged) ... -->
+        <a href="#" class="nav-item active">
+            <i data-lucide="calendar"></i>
+            <span class="nav-label">Calendar</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i data-lucide="user"></i>
+            <span class="nav-label">Helper</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i data-lucide="check-square"></i>
+            <span class="nav-label">To-dos</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i data-lucide="settings"></i>
+            <span class="nav-label">Routines</span>
+        </a>
     </nav>
     <div class="settings-icon"><i data-lucide="settings"></i></div>
     <div id="settingsModal" class="modal">
